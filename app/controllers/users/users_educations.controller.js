@@ -89,7 +89,6 @@ exports.updateImageSchool = async (req, res) => {
     const uploads = req.files.uploads
     const users = JSON.parse(req.body.users)
 
-
     uploads.map(upload => {
         users.map(async user => {
 
@@ -98,7 +97,7 @@ exports.updateImageSchool = async (req, res) => {
 
                 results.map(row => fs.unlinkSync(row.image));
 
-                const [rows] = await sql.query('INSERT INTO user_schools (school, name_image, image, user) VALUES (?, ?, ?, ?)', [user.school, upload.name, upload.path, user.id])
+                const [rows] = await sql.query('INSERT INTO user_schools (school, image, user) VALUES (?, ?, ?)', [user.school, upload.path, user.id])
                 if (rows.affectedRows > 0) {
                     
                     res.json({

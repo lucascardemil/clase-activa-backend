@@ -1,13 +1,14 @@
 module.exports = app => {
     const themes = require('../../controllers/teacher/themes.controller.js');
-    var router = require("express").Router();
+    const router = require("express").Router();
+    const auth = require("../../middleware/auth.js");
 
-    router.get('/', themes.getAllThemes)
-    router.get('/:id', themes.getIdTheme);
-    router.get('/getThemeForSubject/:id', themes.getThemeForSubject);
-    router.post('/addTheme', themes.addTheme);
-    router.put('/updateTheme', themes.updateTheme);
-    router.delete('/deleteTheme/:id', themes.deleteTheme);
+    router.get('/', auth,themes.getAllThemes)
+    router.get('/:id', auth, themes.getIdTheme);
+    router.get('/getThemeForSubject/:id', auth, themes.getThemeForSubject);
+    router.post('/addTheme', auth, themes.addTheme);
+    router.put('/updateTheme', auth, themes.updateTheme);
+    router.delete('/deleteTheme/:id', auth, themes.deleteTheme);
 
     app.use('/api/themes', router);
 };

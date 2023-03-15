@@ -4,13 +4,13 @@ const md5 = require('md5');
 
 exports.getAllUsers = async (req, res) => {
     const [rows] = await sql.query('SELECT * FROM users')
-    res.send(rows)
+    res.json(rows)
 }
 
 exports.getUserId = async (req, res) => {
     const id = req.params.id;
     const [rows] = await sql.query('SELECT * FROM users WHERE id = ?', [id])
-    res.json({rows})
+    res.json({ rows })
 }
 
 exports.signIn = async (req, res) => {
@@ -19,16 +19,19 @@ exports.signIn = async (req, res) => {
     const rut_format = rut.replace(/[^0-9kK]+/g, '').toUpperCase();
 
     const [rows] = await sql.query('SELECT * FROM users WHERE rut = ? AND password = ?', [rut_format, password])
-    if(rows.length > 0){
-        let data = JSON.stringify([rows[0].name, rows[0].id, rows[0].role]);
-        const token = jwt.sign(data, 'stil');
-        res.send({
+    if (rows.length > 0) {
+        const token = jwt.sign(
+            { name: rows[0].name, id: rows[0].id, role: rows[0].role },
+            process.env.TOKEN_KEY, { expiresIn: "2h", });
+
+        res.json({
+            status: 'success',
             message: '¡Usuario ingresado con exito!',
             role: rows[0].role,
             token: token
         });
-    }else {
-        res.send({
+    } else {
+        res.json({
             message: '¡Usuario no existe!'
         });
     }
@@ -45,21 +48,21 @@ exports.signUp = async (req, res) => {
     const rut_format = rut.replace(/[^0-9kK]+/g, '').toUpperCase();
 
     const [rows] = await sql.query('SELECT * FROM users WHERE rut = ? OR email = ?', [rut_format, email])
-    if(rows.length == 0){
-        const [rows] =  await sql.query('INSERT INTO users (role, rut, name, email, password) VALUES (?, ?, ?, ?, ?)', [role, rut_format, name, email, password])
-        if(rows.affectedRows > 0){
-            res.send({
+    if (rows.length == 0) {
+        const [rows] = await sql.query('INSERT INTO users (role, rut, name, email, password) VALUES (?, ?, ?, ?, ?)', [role, rut_format, name, email, password])
+        if (rows.affectedRows > 0) {
+            res.json({
                 status: 'success',
                 message: '¡Usuario creado con exito!',
             });
-        }else {
-            res.send({
+        } else {
+            res.json({
                 status: 'error',
                 message: 'Error al crear el usuario!',
             });
         }
-    }else{
-        res.send({
+    } else {
+        res.json({
             status: 'error',
             message: 'Error el usuario ya existe!',
         });

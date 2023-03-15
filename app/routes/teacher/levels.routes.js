@@ -1,12 +1,14 @@
 module.exports = app => {
     const levels = require('../../controllers/teacher/levels.controller.js');
-    var router = require("express").Router();
+    const router = require("express").Router();
+    const auth = require("../../middleware/auth.js");
 
-    router.get('/', levels.getAllLevels)
-    router.get('/:id', levels.getIdLevel);
-    router.post('/addLevel', levels.addLevel);
-    router.put('/updateLevel', levels.updateLevel);
-    router.delete('/deleteLevel/:id', levels.deleteLevel);
+    router.get('/', auth, levels.getAllLevels)
+    router.get('/levelsWithoutCourses', auth, levels.getAllLevelsWithoutCourses)
+    router.get('/:id', auth, levels.getIdLevel);
+    router.post('/addLevel', auth ,levels.addLevel);
+    router.put('/updateLevel', auth ,levels.updateLevel);
+    router.delete('/deleteLevel/:id', auth, levels.deleteLevel);
 
     app.use('/api/levels', router);
 };

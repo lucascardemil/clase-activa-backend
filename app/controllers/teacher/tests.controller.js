@@ -2,13 +2,13 @@ const sql = require('../../config/db.js');
 
 exports.getAllTest = async (req, res) => {
     const [rows] = await sql.query('SELECT * FROM tests')
-    res.send(rows)
+    res.json(rows)
 }
 
 exports.getIdTest = async (req, res) => {
     const id = req.params.id;
     const [rows] = await sql.query('SELECT * FROM tests WHERE id = ?', [id])
-    res.send(rows);
+    res.json(rows);
 }
 
 exports.addTest = async (req, res) => {
