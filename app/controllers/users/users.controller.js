@@ -22,7 +22,7 @@ exports.signIn = async (req, res) => {
     if (rows.length > 0) {
         const token = jwt.sign(
             { name: rows[0].name, id: rows[0].id, role: rows[0].role },
-            process.env.TOKEN_KEY, { expiresIn: "2h", });
+            process.env.TOKEN_KEY, { expiresIn: '2h', });
 
         res.json({
             status: 'success',
@@ -32,7 +32,7 @@ exports.signIn = async (req, res) => {
         });
     } else {
         res.json({
-            message: '¡Usuario no existe!'
+            message: '¡Rut o contraseña incorrecta!'
         });
     }
 }

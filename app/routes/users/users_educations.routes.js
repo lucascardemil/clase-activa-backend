@@ -3,7 +3,7 @@ module.exports = app => {
     const multipart = require('connect-multiparty');
 
     const router = require("express").Router();
-    const multipartMiddleware = multipart({ uploadDir: 'C:/xampp/htdocs/proyecto-clase-activa/FRONTEND/src/assets/uploads' });
+    const multipartMiddleware = multipart({ uploadDir: 'C:/Users/Lucas/Desktop/proyecto-clase-activa-frontend/src/assets/uploads' });
     // const multipartMiddleware = multipart({ uploadDir: '/home/claseac1/public_html/2023/assets/uploads' });
     const auth = require("../../middleware/auth.js");
 
