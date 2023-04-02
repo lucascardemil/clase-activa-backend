@@ -6,9 +6,15 @@ module.exports = app => {
     router.get('/', auth , plannigs.getAllPlanning);
     router.get('/:id', auth , plannigs.getIdPlanning);
     router.get('/getIdSubObjective/:id', auth, plannigs.getIdSubObjective);
-    router.post('/addPlaningUnit', auth , plannigs.addPlaningUnit);
+    router.get('/getUnitForSubject/:id', auth, plannigs.getUnitForSubject);
+    router.get('/getAxiForUnit/:id', auth, plannigs.getAxiForUnit);
+    router.post('/addPlaning', auth , plannigs.addPlaning);
+    router.post('/addPlanningUnit', auth , plannigs.addPlanningUnit);
+    router.post('/addPlanningAxi', auth , plannigs.addPlanningAxi);
     router.post('/addPlanningObjective', auth , plannigs.addPlanningObjective);
-    router.post('/addPlanningWithObjective', auth , plannigs.addPlanningWithObjective);
-    router.post('/addPlanningWithUnit', auth , plannigs.addPlanningWithUnit);
+    router.post('/addPlanningSubObjective', auth , plannigs.addPlanningSubObjective);
+    router.post('/addPlanningSkill', auth , plannigs.addPlanningSkill);
+    router.post('/addPlanningAttitude', auth , plannigs.addPlanningAttitude);
+    router.post('/addPlanningIndicator', auth , plannigs.addPlanningIndicator);
     app.use('/api/plannings', router);
 };
