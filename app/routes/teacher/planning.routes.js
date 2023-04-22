@@ -1,20 +1,23 @@
 module.exports = app => {
-    const plannigs = require('../../controllers/teacher/plannings.controller.js');
+    const plannigs = require('../../controllers/teacher/plannings/plannings.controller.js');
     const router = require("express").Router();
     const auth = require("../../middleware/auth.js");
 
     router.get('/', auth , plannigs.getAllPlanning);
-    router.get('/:id', auth , plannigs.getIdPlanning);
+    router.get('/getIdPlanning/:id', auth , plannigs.getIdPlanning);
     router.get('/getIdSubObjective/:id', auth, plannigs.getIdSubObjective);
-    router.get('/getUnitForSubject/:id', auth, plannigs.getUnitForSubject);
-    router.get('/getAxiForUnit/:id', auth, plannigs.getAxiForUnit);
+    router.get('/getIdAttitude/:id', auth, plannigs.getIdAttitude);
+    router.get('/getIdSkill/:id', auth, plannigs.getIdSkill);
+    router.get('/getIdObjective/:id', auth, plannigs.getIdObjective);
+    router.get('/getSelectUnits', auth, plannigs.getSelectUnits);
+    router.get('/getSelectAxis', auth, plannigs.getSelectAxis);
     router.post('/addPlaning', auth , plannigs.addPlaning);
     router.post('/addPlanningUnit', auth , plannigs.addPlanningUnit);
-    router.post('/addPlanningAxi', auth , plannigs.addPlanningAxi);
-    router.post('/addPlanningObjective', auth , plannigs.addPlanningObjective);
+    router.post('/addPlanningAxiObjective', auth , plannigs.addPlanningAxiObjective);
+    router.post('/addPlanningUnitObjective', auth , plannigs.addPlanningUnitObjective);
     router.post('/addPlanningSubObjective', auth , plannigs.addPlanningSubObjective);
-    router.post('/addPlanningSkill', auth , plannigs.addPlanningSkill);
-    router.post('/addPlanningAttitude', auth , plannigs.addPlanningAttitude);
-    router.post('/addPlanningIndicator', auth , plannigs.addPlanningIndicator);
+    router.post('/addPlanningUnitSkill', auth , plannigs.addPlanningUnitSkill);
+    router.post('/addPlanningUnitAttitude', auth , plannigs.addPlanningUnitAttitude);
+    router.post('/addPlanningObjectiveIndicator', auth , plannigs.addPlanningObjectiveIndicator);
     app.use('/api/plannings', router);
 };
