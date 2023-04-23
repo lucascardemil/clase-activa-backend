@@ -10,7 +10,7 @@ exports.getAllSubjects = async (req, res) => {
                                            courses.condition_course as condition_course 
                                     FROM subjects 
                                     INNER JOIN courses ON subjects.course = courses.id 
-                                    INNER JOIN levels ON courses.level = levels.id`)
+                                    INNER JOIN levels ON courses.level = levels.id ORDER BY subjects.name DESC`)
     res.json(rows)
 }
 

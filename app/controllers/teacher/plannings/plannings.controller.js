@@ -13,8 +13,9 @@ const {
     getSelectUnitsAttitudes,
     getSelectObjectiveIndicator,
     getIdObjective,
-    handleResponse,
-    getSelectIdUnitsSkills
+    getSelectIdUnitsSkills,
+    getIdUnitSelectAxis,
+    getidAxisSubjects
 } = require('./get.js');
 
 
@@ -32,8 +33,9 @@ module.exports = {
     getSelectUnitsAttitudes,
     getSelectObjectiveIndicator,
     getIdObjective,
-    handleResponse,
     getSelectIdUnitsSkills,
+    getIdUnitSelectAxis,
+    getidAxisSubjects,
 
     addPlanningAxiObjective: async function (req, res) {
         const records = req.body;
@@ -240,7 +242,7 @@ module.exports = {
             const [newUnit] = await sql.query('INSERT INTO units (name, subject) VALUES (?, ?) ON DUPLICATE KEY UPDATE name=name', [name, subject]);
 
             if (newUnit.affectedRows > 0) {
-                const result = await get.loadSelectAxis(newUnit.insertId);
+                const result = await getIdUnitSelectAxis(newUnit.insertId);
                 return res.json({
                     status: 'success',
                     message: newUnit.insertId ? '¡La unidad fue creada con éxito!' : '¡La unidad ya está creada!',
@@ -352,18 +354,159 @@ module.exports = {
         }
     },
 
-    addPlaning: async function (req, res) {
-        const { name, table, message, oa, subject } = req.body;
+    addPlaningSubjectAxi: async function (req, res) {
+        try {
+            const { name, subject } = req.body;
 
-        if (oa !== undefined) {
-            const [rows] = await sql.query('INSERT IGNORE INTO ?? (oa, name) VALUES (?, ?)', [table, oa, name]);
-            res.json(await handleResponse(rows, message, table, oa));
-        } else if (subject !== undefined) {
-            const [rows] = await sql.query('INSERT IGNORE INTO ?? (name,subject) VALUES (?,?)', [table, name, subject]);
-            res.json(await handleResponse(rows, message, table));
-        } else {
-            const [rows] = await sql.query('INSERT IGNORE INTO ?? (name) VALUES (?)', [table, name]);
-            res.json(await handleResponse(rows, message, table));
+            const [rows_founds] = await sql.query('SELECT * FROM axis WHERE name IN (?) AND subject IN (?)', [name, subject]);
+
+            if (rows_founds.length === 0) {
+                const [rows] = await sql.query('INSERT INTO axis (name,subject) VALUES (?,?)', [name, subject]);
+
+                if (rows.affectedRows > 0) {
+
+                    res.json({
+                        status: 'success',
+                        message: '¡La Eje creado con exito!',
+                        result: {
+                            id: rows.insertId,
+                            name: name,
+                            subject: subject
+                        }
+                    });
+
+                } else {
+                    res.json({
+                        status: 'error',
+                        message: '¡Error al crear el Eje!',
+                    });
+                }
+            } else {
+                res.json({
+                    status: 'error',
+                    message: '¡El Eje ya está creado!'
+                });
+            }
+
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+
+    addPlaningObjective: async function (req, res) {
+        try {
+            const { oa, name } = req.body;
+
+            const [rows_founds] = await sql.query('SELECT * FROM objectives WHERE oa IN (?) AND name IN (?)', [oa, name]);
+
+            if (rows_founds.length === 0) {
+                const [rows] = await sql.query('INSERT INTO objectives (oa, name) VALUES (?,?)', [oa, name]);
+
+                if (rows.affectedRows > 0) {
+
+                    res.json({
+                        status: 'success',
+                        message: '¡El Objetivo creado con exito!',
+                        result: {
+                            id: rows.insertId,
+                            name: name,
+                            oa: oa
+                        }
+                    });
+
+                } else {
+                    res.json({
+                        status: 'error',
+                        message: '¡Error al crear el Objetivo!',
+                    });
+                }
+            } else {
+                res.json({
+                    status: 'error',
+                    message: '¡El Objetivo ya está creado!'
+                });
+            }
+
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+
+    addPlaningAttitude: async function (req, res) {
+        try {
+            const { oa, name } = req.body;
+
+            const [rows_founds] = await sql.query('SELECT * FROM attitudes WHERE oa IN (?) AND name IN (?)', [oa, name]);
+
+            if (rows_founds.length === 0) {
+                const [rows] = await sql.query('INSERT INTO attitudes (oa, name) VALUES (?,?)', [oa, name]);
+
+                if (rows.affectedRows > 0) {
+
+                    res.json({
+                        status: 'success',
+                        message: '¡La Actitud creado con exito!',
+                        result: {
+                            id: rows.insertId,
+                            name: name,
+                            oa: oa
+                        }
+                    });
+
+                } else {
+                    res.json({
+                        status: 'error',
+                        message: '¡Error al crear la Actitud!',
+                    });
+                }
+            } else {
+                res.json({
+                    status: 'error',
+                    message: '¡La Actitud ya está creado!'
+                });
+            }
+
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+
+    addPlaningSkill: async function (req, res) {
+        try {
+            const { oa, name } = req.body;
+
+            const [rows_founds] = await sql.query('SELECT * FROM skills WHERE oa IN (?) AND name IN (?)', [oa, name]);
+
+            if (rows_founds.length === 0) {
+                const [rows] = await sql.query('INSERT INTO skills (oa, name) VALUES (?,?)', [oa, name]);
+
+                if (rows.affectedRows > 0) {
+
+                    res.json({
+                        status: 'success',
+                        message: '¡La Habilidad creado con exito!',
+                        result: {
+                            id: rows.insertId,
+                            name: name,
+                            oa: oa
+                        }
+                    });
+
+                } else {
+                    res.json({
+                        status: 'error',
+                        message: '¡Error al crear la Habilidad!',
+                    });
+                }
+            } else {
+                res.json({
+                    status: 'error',
+                    message: '¡La Habilidad ya está creado!'
+                });
+            }
+
+        } catch (error) {
+            res.status(500).json({ error: error });
         }
     },
 

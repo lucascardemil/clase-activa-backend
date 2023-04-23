@@ -422,7 +422,7 @@ module.exports = {
         }
     },
 
-    loadSelectAxis: async function (id) {
+    getIdUnitSelectAxis: async function (id) {
         try {
             const [rows] = await sql.query(`SELECT
                                     levels.name AS level,
@@ -443,22 +443,22 @@ module.exports = {
         }
     },
 
-    handleResponse: async function (rows, message, table, oa) {
-        if (rows.affectedRows > 0) {
-            return {
-                status: 'success',
-                message: rows.insertId ? '¡La ' + message + ' creado con exito!' : '¡La ' + message + ' ya está creado!',
-                result: {
-                    id: rows.insertId,
-                    table: table,
-                    oa: oa
-                }
-            };
-        } else {
-            return {
-                status: 'error',
-                message: '¡Error al crear la ' + message + '!',
-            };
+    getidAxisSubjects: async function (req, res) {
+        try {
+            const name = req.params.name;
+            const subject = req.params.subject;
+
+            const [rows] = await sql.query(`SELECT 
+                                            axis.id AS id,
+                                            axis.name AS name,
+                                            subjects.name AS subject 
+                                            FROM axis
+                                            INNER JOIN subjects ON axis.subject = subjects.id
+                                            WHERE axis.name IN (?) AND subjects.id IN (?)`, [name, subject]);
+            res.json(rows);
+        } catch (err) {
+            console.error(err);
+            res.status(500).send('Error en el servidor');
         }
     },
 }
