@@ -4,6 +4,7 @@ const {
     getIdSubObjective,
     getIdAttitude,
     getIdSkill,
+    getIdIndicator,
     getSelectUnits,
     getSelectAxis,
     getAllPlanning,
@@ -15,7 +16,8 @@ const {
     getIdObjective,
     getSelectIdUnitsSkills,
     getIdUnitSelectAxis,
-    getidAxisSubjects
+    getIdAxisSubjects,
+    getSubjectForUnit
 } = require('./get.js');
 
 
@@ -24,6 +26,7 @@ module.exports = {
     getIdSubObjective,
     getIdAttitude,
     getIdSkill,
+    getIdIndicator,
     getSelectUnits,
     getSelectAxis,
     getAllPlanning,
@@ -35,7 +38,8 @@ module.exports = {
     getIdObjective,
     getSelectIdUnitsSkills,
     getIdUnitSelectAxis,
-    getidAxisSubjects,
+    getIdAxisSubjects,
+    getSubjectForUnit,
 
     addPlanningAxiObjective: async function (req, res) {
         const records = req.body;
@@ -148,19 +152,20 @@ module.exports = {
             const existingRecords = [];
 
             // Obtener todos los registros existentes en una sola consulta
-            const name = records.map(record => record.subObjective);
-            const [existingResults] = await connection.query('SELECT * FROM planning_subobjectives_objectives WHERE name IN (?)', [name]);
+            const id = records.map(record => record.id);
+            const name = records.map(record => record.subObjective.toLowerCase());
+            const [existingResults] = await connection.query('SELECT * FROM planning_subobjectives_objectives WHERE objective IN (?) AND LOWER(name) IN (?)', [id, name]);
 
             // Crear un objeto para buscar registros existentes más fácilmente
             const existingObjectives = existingResults.reduce((acc, result) => {
-                acc[`${result.name}-${result.objective}`] = result;
+                acc[`${result.objective}-${result.name.toLowerCase()}`] = result;
                 return acc;
             }, {});
 
             // Iterar sobre los registros y determinar cuáles deben insertarse y cuáles ya existen
             for (const record of records) {
-                if (existingObjectives[`${record.subObjective}-${record.id}`]) {
-                    existingRecords.push(existingObjectives[`${record.subObjective}-${record.id}`]);
+                if (existingObjectives[`${record.id}-${record.subObjective.toLowerCase()}`]) {
+                    existingRecords.push(existingObjectives[`${record.id}-${record.subObjective.toLowerCase()}`]);
                 } else {
                     const [insertResult] = await connection.query('INSERT INTO planning_subobjectives_objectives (name, objective) VALUES (?, ?)', [record.subObjective, record.id]);
                     const [getResult] = await connection.query('SELECT * FROM planning_subobjectives_objectives WHERE id = ?', [insertResult.insertId]);
@@ -197,9 +202,11 @@ module.exports = {
 
             // Obtener todos los registros existentes en una sola consulta
             const id = records.map(record => record.id);
-            const indicator = records.map(record => record.indicator);
             const unit = records.map(record => record.unit);
-            const [existingResults] = await connection.query('SELECT * FROM planning_indicators_objectives WHERE objective IN (?) AND unit IN (?)', [id, unit]);
+            let existingResults = [];
+            if (id.length > 0 && unit.length > 0) {
+                [existingResults] = await connection.query('SELECT * FROM planning_indicators_objectives WHERE objective IN (?) AND unit IN (?)', [id, unit]);
+            }
 
             // Crear un objeto para buscar registros existentes más fácilmente
             const existingObjectives = existingResults.reduce((acc, result) => {
@@ -237,17 +244,19 @@ module.exports = {
 
     addPlanningUnit: async function (req, res) {
         const { name, subject } = req.body;
+        const lowerCaseName = name.toLowerCase();
         try {
-            // Agregar la unidad si no existe
-            const [newUnit] = await sql.query('INSERT INTO units (name, subject) VALUES (?, ?) ON DUPLICATE KEY UPDATE name=name', [name, subject]);
+            // Check if the unit already exists
+            const [existingUnit] = await sql.query('SELECT * FROM units WHERE LOWER(name) = ?', [lowerCaseName]);
 
+            if (existingUnit.length > 0) {
+                return res.json({ status: 'error', message: '¡La unidad ya está creada!' });
+            }
+            // Add the unit if it doesn't exist
+            const [newUnit] = await sql.query('INSERT INTO units (name, subject) VALUES (?, ?)', [name, subject]);
             if (newUnit.affectedRows > 0) {
                 const result = await getIdUnitSelectAxis(newUnit.insertId);
-                return res.json({
-                    status: 'success',
-                    message: newUnit.insertId ? '¡La unidad fue creada con éxito!' : '¡La unidad ya está creada!',
-                    result: result[0]
-                });
+                return res.json({ status: 'success', message: '¡La unidad fue creada con éxito!', result: result[0] });
             }
         } catch (error) {
             console.error(error);
@@ -357,8 +366,9 @@ module.exports = {
     addPlaningSubjectAxi: async function (req, res) {
         try {
             const { name, subject } = req.body;
+            const lowerCaseName = name.toLowerCase();
 
-            const [rows_founds] = await sql.query('SELECT * FROM axis WHERE name IN (?) AND subject IN (?)', [name, subject]);
+            const [rows_founds] = await sql.query('SELECT * FROM axis WHERE LOWER(name) = ? AND subject IN (?)', [lowerCaseName, subject]);
 
             if (rows_founds.length === 0) {
                 const [rows] = await sql.query('INSERT INTO axis (name,subject) VALUES (?,?)', [name, subject]);
@@ -396,8 +406,9 @@ module.exports = {
     addPlaningObjective: async function (req, res) {
         try {
             const { oa, name } = req.body;
+            const lowerCaseName = name.toLowerCase();
 
-            const [rows_founds] = await sql.query('SELECT * FROM objectives WHERE oa IN (?) AND name IN (?)', [oa, name]);
+            const [rows_founds] = await sql.query('SELECT * FROM objectives WHERE oa IN (?) AND LOWER(name) = ?', [oa, lowerCaseName]);
 
             if (rows_founds.length === 0) {
                 const [rows] = await sql.query('INSERT INTO objectives (oa, name) VALUES (?,?)', [oa, name]);
@@ -435,8 +446,9 @@ module.exports = {
     addPlaningAttitude: async function (req, res) {
         try {
             const { oa, name } = req.body;
+            const lowerCaseName = name.toLowerCase();
 
-            const [rows_founds] = await sql.query('SELECT * FROM attitudes WHERE oa IN (?) AND name IN (?)', [oa, name]);
+            const [rows_founds] = await sql.query('SELECT * FROM attitudes WHERE oa IN (?) AND LOWER(name) = ?', [oa, lowerCaseName]);
 
             if (rows_founds.length === 0) {
                 const [rows] = await sql.query('INSERT INTO attitudes (oa, name) VALUES (?,?)', [oa, name]);
@@ -474,8 +486,9 @@ module.exports = {
     addPlaningSkill: async function (req, res) {
         try {
             const { oa, name } = req.body;
+            const lowerCaseName = name.toLowerCase();
 
-            const [rows_founds] = await sql.query('SELECT * FROM skills WHERE oa IN (?) AND name IN (?)', [oa, name]);
+            const [rows_founds] = await sql.query('SELECT * FROM skills WHERE oa IN (?) AND LOWER(name) = ?', [oa, lowerCaseName]);
 
             if (rows_founds.length === 0) {
                 const [rows] = await sql.query('INSERT INTO skills (oa, name) VALUES (?,?)', [oa, name]);

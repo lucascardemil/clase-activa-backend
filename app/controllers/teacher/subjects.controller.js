@@ -28,7 +28,7 @@ exports.getSubjectForCourse = async (req, res) => {
 
 exports.addSubject = async (req, res) => {
     Promise.all(req.body.map(async (element) => {
-        const [rows] = await sql.query('SELECT * FROM subjects WHERE name = ?', [element.name])
+        const [rows] = await sql.query('SELECT * FROM subjects WHERE name = ? AND course = ?', [element.name, element.course])
         return rows;
     })).then(result => {
         if (result[0].length === 0) {

@@ -4,7 +4,7 @@ module.exports = app => {
 
     const router = require("express").Router();
     const multipartMiddleware = multipart({ uploadDir: 'C:/Users/Lucas/Desktop/proyecto-clase-activa-frontend/src/assets/uploads' });
-    // const multipartMiddleware = multipart({ uploadDir: '/home/claseac1/public_html/2023/assets/uploads' });
+    // const multipartMiddleware = multipart({ uploadDir: '/home/claseac2/public_html/2023/assets/uploads' });
     const auth = require("../../middleware/auth.js");
 
     router.get('/getUserEducationLevel/:id', auth, users_educations.getUserEducationLevel);

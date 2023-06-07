@@ -13,10 +13,12 @@ module.exports = {
         // const [rows] = await sql.query('SELECT * FROM planning_subobjectives_objectives WHERE objective = ?', [id])
         const [rows] = await sql.query(`SELECT
                                             objectives.oa AS oa,
-                                            planning_subobjectives_objectives.name AS name 
+                                            objectives.name AS name,
+                                            planning_subobjectives_objectives.name AS name_subobjective,
+                                            planning_subobjectives_objectives.objective AS objective 
                                         FROM planning_subobjectives_objectives
                                         INNER JOIN objectives ON planning_subobjectives_objectives.objective = objectives.id 
-                                        WHERE objective = ?`, [id])
+                                        WHERE objective = ?`, [id]);
         res.json(rows)
     },
 
@@ -56,6 +58,14 @@ module.exports = {
         res.json(rows)
     },
 
+    getIdIndicator: async function (req, res) {
+        const { objective, unit } = req.params;
+        const [rows] = await sql.query(`SELECT *
+                                        FROM planning_indicators_objectives 
+                                        WHERE objective = ? AND unit = ?`, [objective, unit]);
+        res.json(rows)
+    },
+
     getSelectUnits: async function (req, res) {
         try {
             const [rows] = await sql.query(`SELECT
@@ -92,26 +102,41 @@ module.exports = {
     },
 
     getAllPlanning: async function (req, res) {
-        const [rows] = await sql.query(`SELECT
-                                            courses.name AS course,
-                                            subjects.name AS subject,
-                                            units.id AS id_unit,
-                                            units.name AS unit,
-                                            axis.name AS axi,
-                                            objectives.id AS id_objective,
-                                            objectives.oa AS oa,
-                                            objectives.name AS objective,
-                                            planning_indicators_objectives.name AS indicator
-                                        FROM
-                                            objectives
-                                        INNER JOIN planning_axis_objectives ON objectives.id = planning_axis_objectives.objective
-                                        INNER JOIN axis ON planning_axis_objectives.axi = axis.id
-                                        INNER JOIN planning_indicators_objectives ON objectives.id = planning_indicators_objectives.objective
-                                        INNER JOIN planning_units_objectives ON objectives.id = planning_units_objectives.objective
-                                        INNER JOIN units ON planning_units_objectives.unit = units.id
-                                        INNER JOIN subjects ON units.subject = subjects.id
-                                        INNER JOIN courses ON subjects.course = courses.id`);
-        res.json(rows)
+        try {
+            const id = req.params.id;
+            let query = `
+                SELECT (@row_number:=@row_number + 1) AS id_temporal, t.*
+                FROM (
+                    SELECT
+                        courses.name AS course,
+                        subjects.name AS subject,
+                        units.id AS id_unit,
+                        units.name AS unit,
+                        axis.id AS id_axi,
+                        axis.name AS axi,
+                        objectives.id AS id_objective,
+                        objectives.oa AS oa,
+                        objectives.name AS objective
+                    FROM
+                        planning_units_objectives
+                    INNER JOIN objectives ON planning_units_objectives.objective = objectives.id
+                    INNER JOIN units ON planning_units_objectives.unit = units.id
+                    INNER JOIN planning_axis_objectives ON objectives.id = planning_axis_objectives.objective
+                    INNER JOIN axis ON planning_axis_objectives.axi = axis.id
+                    INNER JOIN subjects ON units.subject = subjects.id
+                    INNER JOIN courses ON subjects.course = courses.id
+                ) t, (SELECT @row_number := 0) r`;
+
+            if (id > 0) {
+                query += ` WHERE t.id_unit = ${id}`;
+            }
+
+            const [rows] = await sql.query(query);
+            res.json(rows);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'An error occurred' });
+        }
     },
 
     getSelectIdAxisObjectives: async function (data) {
@@ -443,7 +468,7 @@ module.exports = {
         }
     },
 
-    getidAxisSubjects: async function (req, res) {
+    getIdAxisSubjects: async function (req, res) {
         try {
             const name = req.params.name;
             const subject = req.params.subject;
@@ -461,5 +486,17 @@ module.exports = {
             res.status(500).send('Error en el servidor');
         }
     },
+
+    getSubjectForUnit: async function (req, res) {
+        try {
+            const id = req.params.id;
+            const [rows] = await sql.query(`SELECT * FROM units WHERE subject = ?`, [id])
+            res.json(rows);
+        } catch (err) {
+            console.error(err);
+            res.status(500).send('Error en el servidor');
+        }
+    },
+
 }
 
