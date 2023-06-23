@@ -15,7 +15,9 @@ require('./app/routes/teacher/subjects.routes.js')(app);
 require('./app/routes/users/users_educations.routes.js')(app);
 require('./app/routes/teacher/themes.routes.js')(app);
 require('./app/routes/teacher/tests.routes.js')(app);
-require('./app/routes/teacher/planning.routes.js')(app);
+require('./app/routes/admin/planning.routes.js')(app);
+require('./app/routes/admin/unit.routes.js')(app);
+require('./app/routes/admin/axi.routes.js')(app);
 
 const { API_PORT } = process.env;
 const port = process.env.PORT || API_PORT;
