@@ -18,6 +18,11 @@ require('./app/routes/teacher/tests.routes.js')(app);
 require('./app/routes/admin/planning.routes.js')(app);
 require('./app/routes/admin/unit.routes.js')(app);
 require('./app/routes/admin/axi.routes.js')(app);
+require('./app/routes/admin/objective.routes.js')(app);
+require('./app/routes/admin/attitude.routes.js')(app);
+require('./app/routes/admin/skill.routes.js')(app);
+require('./app/routes/admin/subobjective.routes.js')(app);
+require('./app/routes/admin/indicator.routes.js')(app);
 
 const { API_PORT } = process.env;
 const port = process.env.PORT || API_PORT;

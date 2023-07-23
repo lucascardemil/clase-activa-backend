@@ -5,7 +5,9 @@ module.exports = app => {
 
     router.get('/getIdAxisSubjects/:name/:subject', auth, axis.getIdAxisSubjects);
     router.get('/getSelectAxis', auth, axis.getSelectAxis);
+    router.get('/getSelectAxisObjectives', auth, axis.getSelectAxisObjectives);
     router.post('/addPlanningAxiObjective', auth , axis.addPlanningAxiObjective);
+    router.put('/updatePlanningAxiObjective', auth , axis.updatePlanningAxiObjective);
     router.post('/addPlaningSubjectAxi', auth , axis.addPlaningSubjectAxi);
     router.put('/updatePlaningSubjectAxi', auth , axis.updatePlaningSubjectAxi);
     app.use('/api/axis', router);
