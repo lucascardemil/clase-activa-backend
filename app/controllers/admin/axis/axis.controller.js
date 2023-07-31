@@ -10,29 +10,44 @@ const {
 
 
 async function addPlaningSubjectAxi(req, res) {
-
-    const { name, subject } = req.body;
-    const lowerCaseName = name.toLowerCase();
+    const records = req.body;
     try {
-        // Check if the unit already exists
-        const [existingAxi] = await sql.query('SELECT * FROM axis WHERE LOWER(name) = ? AND subject = ?', [lowerCaseName, subject]);
+        const insertedRecords = [];
+        const existingSubjects = [];
+        const existingRecords = [];
 
-        if (existingAxi.length > 0) {
-            return res.json({ status: 'error', message: '¡El eje ya está creada!' });
+        for (const record of records) {
+            const [result] = await sql.query('SELECT * FROM subjects WHERE name = ? AND course = ?', [record.subject, record.id]);
+            existingSubjects.push({ id: result[0].id, axi: record.axi });
         }
-        // Add the unit if it doesn't exist
-        const [newAxi] = await sql.query('INSERT INTO axis (name, subject) VALUES (?, ?)', [name, subject]);
-        if (newAxi.affectedRows > 0) {
-            const result = await getIdSelectAxis(newAxi.insertId);
-            return res.json({ status: 'success', message: '¡El eje fue creado con éxito!', result: result[0] });
+
+        for (const subject of existingSubjects) {
+            const lowerCaseName = subject.axi.toLowerCase();
+            const [existingAxis] = await sql.query('SELECT * FROM axis WHERE LOWER(name) = ? AND subject = ?', [lowerCaseName, subject.id]);
+            if (existingAxis.length > 0) {
+                existingRecords.push(existingAxis);
+            } else {
+                const [newAxi] = await sql.query('INSERT INTO axis (name, subject) VALUES (?, ?)', [subject.axi, subject.id]);
+                if (newAxi.affectedRows > 0) {
+                    const getResult = await getIdSelectAxis(newAxi.insertId);
+                    insertedRecords.push(getResult[0]);
+                }
+            }
         }
+
+        res.json({
+            status: 'success',
+            result: { insertedRecords: insertedRecords, existingRecords: existingRecords }
+        });
+
     } catch (error) {
         console.error(error);
     }
 }
-async function  updatePlaningSubjectAxi(req, res) {
+async function updatePlaningSubjectAxi(req, res) {
     const { id, name, subject } = req.body;
     const lowerCaseName = name.toLowerCase();
+    const insertedRecords = [];
     try {
         // Check if the unit already exists
         const [existingAxi] = await sql.query('SELECT * FROM axis WHERE LOWER(name) = ? AND subject = ?', [lowerCaseName, subject]);
