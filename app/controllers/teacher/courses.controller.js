@@ -9,12 +9,24 @@ exports.getIdCourse = async (req, res) => {
     const id = req.params.id;
     const [rows] = await sql.query('SELECT * FROM courses WHERE id = ?', [id])
     res.json(rows);
-
 }
 
 exports.getCourseForLevel = async (req, res) => {
     const id = req.params.id;
     const [rows] = await sql.query('SELECT * FROM courses WHERE level = ? AND condition_course = 1', [id])
+    res.json(rows);
+}
+
+exports.getCourseForSubject = async (req, res) => {
+    const name = req.params.name;
+    const [rows] = await sql.query(`SELECT
+                                        courses.id AS id,
+                                        courses.name AS name
+                                    FROM
+                                        subjects
+                                    INNER JOIN courses ON subjects.course = courses.id
+                                    INNER JOIN levels ON courses.level = levels.id
+                                    WHERE subjects.name = ? ORDER BY courses.id ASC`, [name])
     res.json(rows);
 }
 

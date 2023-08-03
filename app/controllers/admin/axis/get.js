@@ -6,10 +6,12 @@ async function getSelectAxis(req, res) {
                                             axis.id AS id,
                                             axis.name AS name,
                                             subjects.name AS subject,
-                                            courses.name AS course 
+                                            courses.name AS course,
+                                            levels.name AS level 
                                             FROM axis
                                             INNER JOIN subjects ON axis.subject = subjects.id
-                                            INNER JOIN courses ON subjects.course = courses.id`)
+                                            INNER JOIN courses ON subjects.course = courses.id
+                                            INNER JOIN levels ON courses.level = levels.id`)
         res.setHeader('Cache-Control', 'no-store');
         res.json(rows)
     } catch (err) {
@@ -43,10 +45,12 @@ async function getIdSelectAxis(id) {
                                             axis.id AS id,
                                             axis.name AS name,
                                             subjects.name AS subject,
-                                            courses.name AS course
+                                            courses.name AS course,
+                                            levels.name AS level
                                             FROM axis
                                             INNER JOIN subjects ON axis.subject = subjects.id
                                             INNER JOIN courses ON subjects.course = courses.id
+                                            INNER JOIN levels ON courses.level = levels.id
                                             WHERE axis.id = ?`, [id])
         return rows;
     } catch (err) {

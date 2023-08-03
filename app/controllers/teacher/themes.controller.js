@@ -1,13 +1,40 @@
 const sql = require('../../config/db.js');
 
 exports.getAllThemes = async (req, res) => {
-    const [rows] = await sql.query('SELECT themes.name as name, themes.condition_theme as condition_theme, themes.id as id, levels.name as level_name, courses.name as course_name, subjects.name as subject_name, levels.condition_level as condition_level, subjects.condition_subject as condition_subject, courses.condition_course as condition_course FROM themes INNER JOIN subjects ON themes.subject = subjects.id INNER JOIN courses ON subjects.course = courses.id INNER JOIN levels ON courses.level = levels.id')
+    const [rows] = await sql.query(`SELECT 
+                                            themes.name as name, 
+                                            themes.condition_theme as condition_theme, 
+                                            themes.id as id, 
+                                            levels.name as level_name, 
+                                            courses.name as course_name, 
+                                            subjects.name as subject_name, 
+                                            levels.condition_level as condition_level, 
+                                            subjects.condition_subject as condition_subject, 
+                                            courses.condition_course as condition_course 
+                                    FROM themes 
+                                    INNER JOIN subjects ON themes.subject = subjects.id 
+                                    INNER JOIN courses ON subjects.course = courses.id 
+                                    INNER JOIN levels ON courses.level = levels.id`)
     res.json(rows)
 }
 
 exports.getIdTheme = async (req, res) => {
     const id = req.params.id;
-    const [rows] = await sql.query('SELECT themes.name as name, themes.condition_theme as condition_theme, themes.id as id, levels.id as level_id, courses.id as course_id, subjects.id as subject_id FROM themes INNER JOIN subjects ON themes.subject = subjects.id INNER JOIN courses ON subjects.course = courses.id INNER JOIN levels ON courses.level = levels.id WHERE themes.id = ?', [id])
+    const [rows] = await sql.query(`SELECT 
+                                            themes.name as name, 
+                                            themes.condition_theme as condition_theme, 
+                                            themes.id as id, 
+                                            levels.id as level_id, 
+                                            courses.id as course_id, 
+                                            subjects.id as subject_id,
+                                            levels.name as name_level,
+                                            courses.name as name_course,
+                                            subjects.name as name_subject
+                                    FROM themes 
+                                    INNER JOIN subjects ON themes.subject = subjects.id 
+                                    INNER JOIN courses ON subjects.course = courses.id 
+                                    INNER JOIN levels ON courses.level = levels.id 
+                                    WHERE themes.id = ?`, [id])
     res.json(rows);
 }
 
