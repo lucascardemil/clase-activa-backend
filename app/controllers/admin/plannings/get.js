@@ -54,10 +54,79 @@ async function getSubjectForUnit(req, res) {
         res.status(500).send('Error en el servidor');
     }
 }
+async function getIdSubObjective(req, res) {
+    const id = req.params.id;
+    try {
+        const [rows] = await sql.query(`SELECT
+                                            subobjectives.id AS id_subobjective,
+                                            objectives.id AS id_objective,
+                                            objectives.oa AS oa,
+                                            objectives.name AS name,
+                                            subobjectives.name AS name_subobjective
+                                        FROM
+                                            planning_subobjectives_objectives
+                                        INNER JOIN subobjectives ON planning_subobjectives_objectives.subobjective = subobjectives.id
+                                        INNER JOIN objectives ON planning_subobjectives_objectives.objective = objectives.id
+                                        WHERE objectives.id = ?`, [id]);
+        res.setHeader('Cache-Control', 'no-store');
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error en el servidor');
+    }
+}
+async function getIdIndicator(req, res) {
+    const id = req.params.id;
+    try {
+        const [rows] = await sql.query(`SELECT
+                                            indicators.id AS id_indicator,
+                                            objectives.id AS id_objective,
+                                            objectives.oa AS oa,
+                                            indicators.name AS name
+                                        FROM
+                                            planning_indicators_objectives
+                                        INNER JOIN indicators ON planning_indicators_objectives.indicator = indicators.id
+                                        INNER JOIN objectives ON planning_indicators_objectives.objective = objectives.id
+                                        WHERE objectives.id = ?`, [id]);
+        res.setHeader('Cache-Control', 'no-store');
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error en el servidor');
+    }
+}
+async function getIdSkill(req, res) {
+    const id = req.params.id;
+    const [rows] = await sql.query(`SELECT
+                                    skills.oa AS oa,
+                                    skills.name AS name,
+                                    planning_units_skills.unit AS unit    
+                                FROM planning_units_skills
+                                INNER JOIN skills ON planning_units_skills.skill = skills.id 
+                                WHERE unit = ?`, [id])
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(rows)
+}
+async function getIdAttitude(req, res) {
+    const id = req.params.id;
+    const [rows] = await sql.query(`SELECT
+                                        attitudes.oa AS oa,
+                                        attitudes.name AS name,
+                                        planning_units_attitudes.unit AS unit    
+                                    FROM planning_units_attitudes
+                                    INNER JOIN attitudes ON planning_units_attitudes.attitude = attitudes.id 
+                                    WHERE unit = ?`, [id])
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(rows)
+}
 
 module.exports = {
     getIdPlanning,
     getAllPlanning,
-    getSubjectForUnit
+    getSubjectForUnit,
+    getIdSubObjective,
+    getIdIndicator,
+    getIdSkill,
+    getIdAttitude
 }
 
