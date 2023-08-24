@@ -3,10 +3,11 @@ module.exports = app => {
     const router = require("express").Router();
     const auth = require("../../middleware/auth.js");
 
-    router.get('/', auth, courses.getAllCourses)
-    router.get('/:id', auth, courses.getIdCourse);
+    router.get('/getAllCourses', auth, courses.getAllCourses)
+    router.get('/getIdCourse/:id', auth, courses.getIdCourse);
     router.get('/getCourseForLevel/:id', auth, courses.getCourseForLevel);
-    router.get('/getCourseForSubject/:name', auth, courses.getCourseForSubject);
+    router.get('/getCourseForSubjectName/:name', auth, courses.getCourseForSubjectName);
+    router.get('/getAllCourseForSubject', auth, courses.getAllCourseForSubject);
     router.post('/addCourse', auth, courses.addCourse);
     router.put('/updateCourse', auth, courses.updateCourse);
     router.delete('/deleteCourse/:id', auth, courses.deleteCourse);

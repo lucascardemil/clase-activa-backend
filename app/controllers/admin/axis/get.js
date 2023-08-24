@@ -6,6 +6,7 @@ async function getSelectAxis(req, res) {
                                             axis.id AS id,
                                             axis.name AS name,
                                             subjects.name AS subject,
+                                            courses.id AS id_course,
                                             courses.name AS course,
                                             levels.name AS level 
                                             FROM axis

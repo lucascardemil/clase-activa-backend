@@ -7,25 +7,31 @@ const {
     getSelectAxisObjectives
 } = require('./get.js');
 
-
-
 async function addPlaningSubjectAxi(req, res) {
     const records = req.body;
     try {
         const insertedRecords = [];
         const existingSubjects = [];
+        const deleteRecords = [];
         const existingRecords = [];
 
         for (const record of records) {
             const [result] = await sql.query('SELECT * FROM subjects WHERE name = ? AND course = ?', [record.subject, record.id]);
-            existingSubjects.push({ id: result[0].id, axi: record.axi });
+            existingSubjects.push({ id: result[0].id, axi: record.axi, checked: record.checked });
         }
 
         for (const subject of existingSubjects) {
             const lowerCaseName = subject.axi.toLowerCase();
             const [existingAxis] = await sql.query('SELECT * FROM axis WHERE LOWER(name) = ? AND subject = ?', [lowerCaseName, subject.id]);
             if (existingAxis.length > 0) {
-                existingRecords.push(existingAxis);
+                if(subject.checked === false){
+                    const getResult = await getIdSelectAxis(existingAxis[0].id);
+                    deleteRecords.push(getResult[0]);
+                    await sql.query('DELETE FROM axis WHERE LOWER(name) IN (?) AND subject IN (?)', [lowerCaseName, subject.id]);
+                }else{
+                    const getResult = await getIdSelectAxis(existingAxis[0].id);
+                    existingRecords.push(getResult[0]);
+                }
             } else {
                 const [newAxi] = await sql.query('INSERT INTO axis (name, subject) VALUES (?, ?)', [subject.axi, subject.id]);
                 if (newAxi.affectedRows > 0) {
@@ -37,30 +43,9 @@ async function addPlaningSubjectAxi(req, res) {
 
         res.json({
             status: 'success',
-            result: { insertedRecords: insertedRecords, existingRecords: existingRecords }
+            result: { insertedRecords: insertedRecords, existingRecords: existingRecords, deleteRecords: deleteRecords }
         });
 
-    } catch (error) {
-        console.error(error);
-    }
-}
-async function updatePlaningSubjectAxi(req, res) {
-    const { id, name, subject } = req.body;
-    const lowerCaseName = name.toLowerCase();
-    const insertedRecords = [];
-    try {
-        // Check if the unit already exists
-        const [existingAxi] = await sql.query('SELECT * FROM axis WHERE LOWER(name) = ? AND subject = ?', [lowerCaseName, subject]);
-
-        if (existingAxi.length > 0) {
-            return res.json({ status: 'error', message: '¡El eje ya está creada!' });
-        }
-        // Add the unit if it doesn't exist
-        const [newAxi] = await sql.query('UPDATE axis SET name = ?, subject = ? WHERE id = ?', [name, subject, id]);
-        if (newAxi.affectedRows > 0) {
-            const result = await getIdSelectAxis(id);
-            return res.json({ status: 'success', message: '¡El eje fue actualizado con éxito!', result: result[0] });
-        }
     } catch (error) {
         console.error(error);
     }
@@ -173,7 +158,6 @@ module.exports = {
     getIdSelectAxis,
     getSelectAxisObjectives,
     addPlaningSubjectAxi,
-    updatePlaningSubjectAxi,
     addPlanningAxiObjective,
     updatePlanningAxiObjective
 }

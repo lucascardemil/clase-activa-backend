@@ -1,7 +1,15 @@
 const sql = require('../../config/db.js');
 
 exports.getAllCourses = async (req, res) => {
-    const [rows] = await sql.query('SELECT courses.id as id, courses.name as name, courses.condition_course as condition_course, levels.name as level, levels.condition_level as condition_level FROM courses INNER JOIN levels ON courses.level = levels.id')
+    const [rows] = await sql.query(`SELECT 
+                                            courses.id as id, 
+                                            courses.name as name, 
+                                            courses.condition_course as condition_course, 
+                                            levels.name as level, 
+                                            levels.condition_level as condition_level 
+                                    FROM 
+                                        courses 
+                                    INNER JOIN levels ON courses.level = levels.id`)
     res.json(rows)
 }
 
@@ -17,7 +25,20 @@ exports.getCourseForLevel = async (req, res) => {
     res.json(rows);
 }
 
-exports.getCourseForSubject = async (req, res) => {
+exports.getAllCourseForSubject = async (req, res) => {
+    const [rows] = await sql.query(`SELECT
+                                        courses.id AS id,
+                                        courses.name AS name,
+                                        subjects.name AS subject
+                                    FROM
+                                        subjects
+                                    INNER JOIN courses ON subjects.course = courses.id
+                                    INNER JOIN levels ON courses.level = levels.id
+                                    ORDER BY courses.id ASC`)
+    res.json(rows);
+}
+
+exports.getCourseForSubjectName = async (req, res) => {
     const name = req.params.name;
     const [rows] = await sql.query(`SELECT
                                         courses.id AS id,

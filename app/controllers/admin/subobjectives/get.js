@@ -24,6 +24,7 @@ async function getPreviewSubObjective(req, res) {
 async function getSelectSubObjectives(req, res) {
     try {
         const [rows] = await sql.query(`SELECT * FROM subobjectives`)
+        res.setHeader('Cache-Control', 'no-store');
         res.json(rows)
     } catch (err) {
         console.error(err);

@@ -9,6 +9,5 @@ module.exports = app => {
     router.post('/addPlanningAxiObjective', auth , axis.addPlanningAxiObjective);
     router.put('/updatePlanningAxiObjective', auth , axis.updatePlanningAxiObjective);
     router.post('/addPlaningSubjectAxi', auth , axis.addPlaningSubjectAxi);
-    router.put('/updatePlaningSubjectAxi', auth , axis.updatePlaningSubjectAxi);
     app.use('/api/axis', router);
 };
