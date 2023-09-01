@@ -7,6 +7,7 @@ module.exports = app => {
     router.get('/getSelectUnitsObjectives', auth, units.getSelectUnitsObjectives);
     router.get('/getSelectUnitsSkills', auth, units.getSelectUnitsSkills);
     router.get('/getSelectUnitsAttitudes', auth, units.getSelectUnitsAttitudes);
+    router.get('/getUnitForSubjectName/:name', auth, units.getUnitForSubjectName);
     router.post('/addPlanningUnit', auth , units.addPlanningUnit);
     router.put('/updatePlanningUnit', auth , units.updatePlanningUnit);
     router.post('/addPlanningUnitObjective', auth , units.addPlanningUnitObjective);

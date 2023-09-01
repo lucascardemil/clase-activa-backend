@@ -7,7 +7,8 @@ const {
     getSelectUnitsAttitudes,
     getSelectUnitsObjectives,
     getSelectUnitsSkills,
-    getSelectIdUnitsAttitudes
+    getSelectIdUnitsAttitudes,
+    getUnitForSubjectName
 } = require('./get.js');
 
 async function addPlanningUnit(req, res) {
@@ -367,5 +368,6 @@ module.exports = {
     updatePlanningUnitSkill,
     getSelectUnitsSkills,
     getSelectIdUnitsAttitudes,
-    updatePlanningUnitAttitude
+    updatePlanningUnitAttitude,
+    getUnitForSubjectName
 }

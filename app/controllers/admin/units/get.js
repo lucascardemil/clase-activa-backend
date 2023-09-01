@@ -20,6 +20,24 @@ async function getSelectUnits(req, res) {
         res.status(500).send('Error en el servidor');
     }
 }
+
+async function getUnitForSubjectName(req, res) {
+    try {
+        const name = req.params.name;
+        const [rows] = await sql.query(`SELECT
+                                        units.id AS id,
+                                        units.name AS name
+                                    FROM
+                                        units
+                                    INNER JOIN subjects ON units.subject = subjects.id
+                                    WHERE subjects.name = ?`, [name])
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error en el servidor');
+    }
+}
+
 async function getSelectUnitsObjectives(req, res) {
     try {
         const [rows] = await sql.query(`SELECT
@@ -275,5 +293,6 @@ module.exports = {
     getSelectIdUnitsSkills,
     getSelectUnitsAttitudes,
     getSelectUnitsSkills,
-    getSelectIdUnitsAttitudes
+    getSelectIdUnitsAttitudes,
+    getUnitForSubjectName
 }

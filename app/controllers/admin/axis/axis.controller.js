@@ -4,7 +4,8 @@ const {
     getIdAxisSubjects,
     getSelectIdAxisObjectives,
     getIdSelectAxis,
-    getSelectAxisObjectives
+    getSelectAxisObjectives,
+    getAxiForSubjectAndCourse
 } = require('./get.js');
 
 async function addPlaningSubjectAxi(req, res) {
@@ -159,5 +160,6 @@ module.exports = {
     getSelectAxisObjectives,
     addPlaningSubjectAxi,
     addPlanningAxiObjective,
-    updatePlanningAxiObjective
+    updatePlanningAxiObjective,
+    getAxiForSubjectAndCourse
 }

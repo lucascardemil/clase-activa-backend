@@ -130,10 +130,32 @@ async function getSelectIdAxisObjectives(data) {
         connection.release();
     }
 }
+
+async function getAxiForSubjectAndCourse(req, res) {
+    try {
+        const id = req.params.id;
+
+        const [rows] = await sql.query(`SELECT 
+                                            axis.id AS id,
+                                            axis.name AS name
+                                        FROM axis
+                                            INNER JOIN subjects ON axis.subject = subjects.id
+                                            INNER JOIN courses ON subjects.course = courses.id
+                                            INNER JOIN units ON subjects.id = units.subject
+                                        WHERE units.id IN (?)`, [id]);
+        res.setHeader('Cache-Control', 'no-store');
+        res.json(rows)
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error en el servidor');
+    }
+}
+
 module.exports = {
     getSelectAxis,
     getSelectAxisObjectives,
     getIdSelectAxis,
     getIdAxisSubjects,
-    getSelectIdAxisObjectives
+    getSelectIdAxisObjectives,
+    getAxiForSubjectAndCourse
 }
